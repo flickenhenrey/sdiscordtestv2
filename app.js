@@ -4,6 +4,7 @@ import {
     getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
     serverTimestamp, doc, setDoc, getDoc, where, updateDoc, arrayUnion 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getDatabase, ref, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDPggbx3_-BR-Lf8aBkihufcXFF9stijAc",
@@ -18,12 +19,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore();
+const rtdb = getDatabase();
 const provider = new GoogleAuthProvider();
 
 let activeChatId = null;
 let isGroupChat = false;
 let messageUnsubscribe = null;
 let membersUnsubscribe = null;
+let onlineStatuses = {};
 
 // Auth State
 onAuthStateChanged(auth, user => {
@@ -32,6 +35,12 @@ onAuthStateChanged(auth, user => {
         document.getElementById('app-container').style.display = 'flex';
         document.getElementById('user-display-name').innerText = user.email.split('@')[0];
         setDoc(doc(db, "users", user.email), { email: user.email, uid: user.uid }, { merge: true });
+        
+        // Set up presence system
+        const userStatusRef = ref(rtdb, `status/${user.email.replace(/\./g, '_')}`);
+        set(userStatusRef, { online: true, lastSeen: Date.now() });
+        onDisconnect(userStatusRef).set({ online: false, lastSeen: Date.now() });
+        
         loadFriends();
         loadGroups();
     } else {
@@ -156,8 +165,28 @@ function loadMembers() {
             members.forEach(email => {
                 const div = document.createElement('div');
                 div.className = "member-item";
-                div.innerText = email;
+                div.setAttribute('data-email', email);
+                
+                const indicator = document.createElement('span');
+                indicator.className = 'status-indicator offline';
+                
+                const emailText = document.createElement('span');
+                emailText.innerText = email;
+                
+                div.appendChild(indicator);
+                div.appendChild(emailText);
                 membersList.appendChild(div);
+                
+                // Listen to this user's online status
+                const statusRef = ref(rtdb, `status/${email.replace(/\./g, '_')}`);
+                onValue(statusRef, (statusSnapshot) => {
+                    const status = statusSnapshot.val();
+                    if (status && status.online) {
+                        indicator.className = 'status-indicator online';
+                    } else {
+                        indicator.className = 'status-indicator offline';
+                    }
+                });
             });
         }
     });
