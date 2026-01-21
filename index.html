@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolDiscord</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="auth-container">
+        <div class="login-card">
+            <h1>SchoolDiscord</h1>
+            <p>Welcome to schooldiscord67</p>
+            <button id="login-btn">Sign in with Google</button>
+        </div>
+    </div>
+
+    <div id="app-container" style="display: none;">
+        <nav class="sidebar">
+            <div class="sidebar-header"><h3>Friends</h3></div>
+            <div class="search-area">
+                <input type="text" id="friend-search" placeholder="Friend's Gmail...">
+                <button id="add-friend-btn">Add</button>
+            </div>
+            <div id="friends-list"></div>
+
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-header"><h3>Groups</h3></div>
+            <div class="search-area">
+                <input type="text" id="group-name-input" placeholder="Group Name...">
+                <button id="create-group-btn">Create</button>
+            </div>
+            <div id="groups-list"></div>
+
+            <div class="user-footer">
+                <span id="user-display-name"></span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </nav>
+
+        <main class="chat-area">
+            <header class="chat-header">
+                <span id="chat-with-title">Select a friend or group</span>
+                <div id="group-manage-area" style="display: none;">
+                    <input type="text" id="add-member-email" placeholder="User Gmail...">
+                    <button id="add-member-btn">Add Member</button>
+                </div>
+            </header>
+            <div id="messages-container"></div>
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Message..." disabled>
+            </div>
+        </main>
+
+        <aside class="members-panel" id="members-panel" style="display: none;">
+            <div class="members-header">
+                <h3>Members</h3>
+            </div>
+            <div id="members-list"></div>
+        </aside>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
